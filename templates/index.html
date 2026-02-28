@@ -4,12 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CricPredict — Cricket Match Winner Prediction</title>
+    <title>CricPredict — Minimal Match Prediction</title>
     <meta name="description"
         content="Predict cricket match winners using machine learning. Powered by a Random Forest model trained on historical match data.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@300;400;600&display=swap"
         rel="stylesheet">
 
     <!-- Preload dropdown data -->
@@ -102,18 +103,18 @@
     <header class="header">
         <div class="header-inner">
             <div class="logo">
-                <span class="logo-icon">🏏</span>
-                <span class="logo-text">CricPredict</span>
+                <span class="logo-text">CRICPREDICT</span>
             </div>
-            <nav style="display: flex; gap: 20px; align-items: center;">
-                <a href="/compare" style="color: var(--text-primary); text-decoration: none; font-weight: 500;">Compare
-                    Teams</a>
+            <nav style="display: flex; gap: 32px; align-items: center;">
+                <a href="/compare"
+                    style="color: var(--text-secondary); text-decoration: none; font-weight: 400; font-size: 0.9rem; letter-spacing: 1px; text-transform: uppercase;">Compare</a>
                 <a href="/history"
-                    style="color: var(--text-primary); text-decoration: none; font-weight: 500;">History</a>
-                <div class="header-badge">
+                    style="color: var(--text-secondary); text-decoration: none; font-weight: 400; font-size: 0.9rem; letter-spacing: 1px; text-transform: uppercase;">History</a>
+                <div class="header-badge" style="border: none; background: transparent; padding: 0;">
                     <span
                         class="badge-dot {% if model_loaded %}badge-dot--live{% else %}badge-dot--offline{% endif %}"></span>
-                    <span>{{ "Model Active" if model_loaded else "Model Offline" }}</span>
+                    <span style="font-size: 0.75rem; letter-spacing: 1px; text-transform: uppercase;">{{ "Active" if
+                        model_loaded else "Offline" }}</span>
                 </div>
             </nav>
         </div>
@@ -122,9 +123,8 @@
     <main class="main">
         <!-- Hero -->
         <section class="hero">
-            <h1 class="hero-title">Predict the <span class="gradient-text">Winner</span></h1>
-            <p class="hero-subtitle">AI-powered cricket match predictions using a Random Forest model trained on
-                thousands of historical matches</p>
+            <h1 class="hero-title">Predict the <span class="gradient-text">Winner</span>.</h1>
+            <p class="hero-subtitle">Artificial intelligence trained on 19,000+ historical cricket matches.</p>
         </section>
 
         {% if not model_loaded %}
@@ -142,9 +142,9 @@
             <form id="predictionForm" class="form">
 
                 <!-- League + Format Row -->
-                <div class="form-row form-row--filters">
-                    <div class="form-group">
-                        <label class="form-label"><span class="label-icon">🏆</span> League / Tournament</label>
+                <div class="form-row form-row--filters" style="border-bottom: none;">
+                    <div class="form-group" style="flex: 2;">
+                        <label class="form-label">League / Tournament</label>
                         <div class="select-wrapper">
                             <select id="league" name="league">
                                 <option value="">All Leagues</option>
@@ -155,7 +155,7 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="form-label"><span class="label-icon">📋</span> Format</label>
+                        <label class="form-label">Format</label>
                         <div class="select-wrapper">
                             <select id="matchType" name="match_type">
                                 <option value="">Any Format</option>
@@ -166,7 +166,7 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="form-label"><span class="label-icon">👤</span> Gender</label>
+                        <label class="form-label">Gender</label>
                         <div class="select-wrapper">
                             <select id="gender" name="gender">
                                 <option value="">Any</option>
@@ -183,45 +183,41 @@
                     <div class="team-select team-select--1" id="team1Block">
                         <label class="form-label">Team 1</label>
                         <div class="select-wrapper select-wrapper--searchable">
-                            <input type="text" class="search-input" id="team1Search" placeholder="Search teams..."
+                            <input type="text" class="search-input" id="team1Search" placeholder="Search"
                                 autocomplete="off">
-                            <select id="team1" name="team1" required>
+                            <select id="team1" name="team1" required
+                                style="border-bottom: 2px solid rgba(255,255,255,0.2);">
                                 <option value="">Select Team</option>
                                 {% for team in teams %}
                                 <option value="{{ team }}">{{ team }}</option>
                                 {% endfor %}
                             </select>
                         </div>
-                        <div class="team-badge" id="team1Badge"></div>
-                    </div>
-
-                    <div class="vs-divider">
-                        <div class="vs-circle"><span>VS</span></div>
                     </div>
 
                     <div class="team-select team-select--2" id="team2Block">
                         <label class="form-label">Team 2</label>
                         <div class="select-wrapper select-wrapper--searchable">
-                            <input type="text" class="search-input" id="team2Search" placeholder="Search teams..."
+                            <input type="text" class="search-input" id="team2Search" placeholder="Search"
                                 autocomplete="off">
-                            <select id="team2" name="team2" required>
+                            <select id="team2" name="team2" required
+                                style="border-bottom: 2px solid rgba(255,255,255,0.2);">
                                 <option value="">Select Team</option>
                                 {% for team in teams %}
                                 <option value="{{ team }}">{{ team }}</option>
                                 {% endfor %}
                             </select>
                         </div>
-                        <div class="team-badge" id="team2Badge"></div>
                     </div>
                 </div>
 
                 <!-- Venue + City -->
                 <div class="form-row form-row--location">
                     <div class="form-group" style="flex:2">
-                        <label class="form-label"><span class="label-icon">📍</span> Venue</label>
+                        <label class="form-label">Venue</label>
                         <div class="select-wrapper">
                             <select id="venue" name="venue">
-                                <option value="">Select Venue (optional)</option>
+                                <option value="">Optional Venue</option>
                                 {% for v in venues %}
                                 <option value="{{ v }}">{{ v }}</option>
                                 {% endfor %}
@@ -229,10 +225,10 @@
                         </div>
                     </div>
                     <div class="form-group" style="flex:1">
-                        <label class="form-label"><span class="label-icon">🌆</span> City</label>
+                        <label class="form-label">City</label>
                         <div class="select-wrapper">
                             <select id="city" name="city">
-                                <option value="">Select City</option>
+                                <option value="">Optional City</option>
                                 {% for c in cities %}
                                 <option value="{{ c }}">{{ c }}</option>
                                 {% endfor %}
@@ -244,18 +240,18 @@
                 <!-- Toss Info -->
                 <div class="form-row form-row--toss">
                     <div class="form-group">
-                        <label class="form-label"><span class="label-icon">🪙</span> Toss Winner</label>
+                        <label class="form-label">Toss Winner</label>
                         <div class="select-wrapper">
                             <select id="tossWinner" name="toss_winner">
-                                <option value="">Select (optional)</option>
+                                <option value="">Optional</option>
                             </select>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="form-label"><span class="label-icon">🏏</span> Toss Decision</label>
+                        <label class="form-label">Decision</label>
                         <div class="select-wrapper">
                             <select id="tossDecision" name="toss_decision">
-                                <option value="">Select (optional)</option>
+                                <option value="">Optional</option>
                                 <option value="bat">Bat First</option>
                                 <option value="field">Field First</option>
                             </select>
@@ -264,7 +260,7 @@
                 </div>
 
                 <button type="submit" class="btn-predict" id="predictBtn" {% if not model_loaded %}disabled{% endif %}>
-                    <span class="btn-text">Predict Winner</span>
+                    <span class="btn-text">Predict Match</span>
                     <span class="btn-loader" id="btnLoader"></span>
                     <span class="btn-icon">→</span>
                 </button>
@@ -416,27 +412,28 @@
         team1Sel.addEventListener('change', updateTossOptions);
         team2Sel.addEventListener('change', updateTossOptions);
 
-        // ── Team badges ──
+        // ── Team badges (Reduced to simple styling rather than blocks) ──
         function teamColor(name) {
-            if (!name) return 'hsl(220, 15%, 30%)';
+            if (!name) return 'rgba(255,255,255,0.1)';
             let hash = 0;
             for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
-            return `hsl(${Math.abs(hash) % 360}, 65%, 50%)`;
+            return `hsl(${Math.abs(hash) % 360}, 65%, 60%)`;
         }
 
-        function updateTeamBadge(selectEl, badgeEl, blockEl) {
+        function updateTeamHighlight(selectEl) {
             const name = selectEl.value;
             const color = teamColor(name);
-            badgeEl.textContent = name ? name.substring(0, 3).toUpperCase() : '';
-            badgeEl.style.background = name ? `linear-gradient(135deg, ${color}, ${color}dd)` : '';
-            badgeEl.style.display = name ? 'flex' : 'none';
-            blockEl.style.borderColor = name ? color : '';
+            if (name) {
+                selectEl.style.borderBottomColor = color;
+                selectEl.style.boxShadow = `0 10px 30px -10px ${color}33`;
+            } else {
+                selectEl.style.borderBottomColor = 'rgba(255,255,255,0.2)';
+                selectEl.style.boxShadow = 'none';
+            }
         }
 
-        team1Sel.addEventListener('change', () =>
-            updateTeamBadge(team1Sel, document.getElementById('team1Badge'), document.getElementById('team1Block')));
-        team2Sel.addEventListener('change', () =>
-            updateTeamBadge(team2Sel, document.getElementById('team2Badge'), document.getElementById('team2Block')));
+        team1Sel.addEventListener('change', () => updateTeamHighlight(team1Sel));
+        team2Sel.addEventListener('change', () => updateTeamHighlight(team2Sel));
 
         // ── Error toast ──
         function showError(msg) {
@@ -523,21 +520,6 @@
             resultSection.classList.remove('result-enter');
             predictCard.style.display = 'block';
         });
-
-        // ── Particles ──
-        (function () {
-            const c = document.getElementById('bgParticles');
-            for (let i = 0; i < 30; i++) {
-                const p = document.createElement('div');
-                p.className = 'particle';
-                p.style.left = Math.random() * 100 + '%';
-                p.style.top = Math.random() * 100 + '%';
-                p.style.animationDelay = Math.random() * 6 + 's';
-                p.style.animationDuration = (4 + Math.random() * 8) + 's';
-                p.style.width = p.style.height = (2 + Math.random() * 4) + 'px';
-                c.appendChild(p);
-            }
-        })();
     </script>
 </body>
 
