@@ -16,7 +16,6 @@ optuna>=3.6
 
 # Feature analysis
 shap>=0.45
-matplotlib>=3.7
 
 # API and Validation
 flask-limiter==3.5.1
