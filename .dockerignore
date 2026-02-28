@@ -1,0 +1,33 @@
+# Version control / OS
+.git
+.gitignore
+.DS_Store
+__pycache__
+*.pyc
+
+# Local environments
+env/
+venv/
+.venv/
+
+# Massive Raw Training Data
+# We do not want to ship gigabytes of Kaggle data in the production container!
+data/raw_csv/
+data/*.json
+
+# Keep SQLite db out of container build context
+data/history.db
+
+# Ensure the compressed ensemble models are copied
+# BUT ignore the old massive legacy uncompressed models
+models/cricket_rf_bootstrap.pkl
+models/cricket_preprocess.pkl
+
+# IDEs / Dev Tools
+.vscode/
+.idea/
+cricket_model_notebook.py
+
+# Task Logs pipeline trackers
+pipeline/state.json
+logs/criccric.log
