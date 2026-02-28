@@ -1,5 +1,5 @@
 /* ================================================================
-   CricPredict – Premium Cricket Match Prediction UI
+   CricPredict – Minimalist Premium UI
    ================================================================ */
 
 /* ── Reset & Base ── */
@@ -12,39 +12,35 @@
 }
 
 :root {
-    --bg-primary: #0a0e1a;
-    --bg-secondary: #111827;
-    --bg-card: rgba(17, 24, 39, 0.7);
-    --bg-glass: rgba(255, 255, 255, 0.04);
-    --border-glass: rgba(255, 255, 255, 0.08);
+    --bg-primary: #050505;
+    --bg-secondary: #0a0a0a;
+    --bg-card: rgba(10, 10, 10, 0.4);
+    --bg-glass: rgba(255, 255, 255, 0.02);
+    --border-glass: rgba(255, 255, 255, 0.04);
 
-    --text-primary: #f0f4ff;
-    --text-secondary: #94a3b8;
-    --text-muted: #64748b;
+    --text-primary: #f8fafc;
+    --text-secondary: rgba(248, 250, 252, 0.6);
+    --text-muted: rgba(248, 250, 252, 0.3);
 
-    --accent-1: #10b981;
-    /* emerald */
-    --accent-2: #06d6a0;
-    /* mint */
-    --accent-glow: rgba(16, 185, 129, 0.25);
-    --accent-gradient: linear-gradient(135deg, #10b981, #06d6a0);
+    --accent-1: #e2e8f0;
+    --accent-glow: rgba(255, 255, 255, 0.05);
 
-    --team1-color: #3b82f6;
-    --team2-color: #f97316;
+    --team1-color: #60a5fa;
+    --team2-color: #f87171;
 
     --danger: #ef4444;
     --warning: #f59e0b;
 
-    --radius-sm: 8px;
-    --radius-md: 14px;
-    --radius-lg: 22px;
-    --radius-xl: 28px;
+    --radius-sm: 4px;
+    --radius-md: 12px;
+    --radius-lg: 24px;
+    --radius-xl: 32px;
 
-    --shadow-glow: 0 0 40px rgba(16, 185, 129, 0.15);
-    --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.4);
+    --shadow-glow: 0 0 60px rgba(255, 255, 255, 0.03);
+    --shadow-card: 0 20px 40px rgba(0, 0, 0, 0.4);
 
-    --font: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
-    --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --font: 'Inter', 'Outfit', -apple-system, sans-serif;
+    --transition: 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 html {
@@ -59,44 +55,28 @@ body {
     min-height: 100vh;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
+    letter-spacing: -0.01em;
 }
 
-/* ── Animated Background Particles ── */
+/* ── Subtle Ambient Background ── */
 .bg-particles {
     position: fixed;
-    inset: 0;
+    inset: -50%;
     pointer-events: none;
     z-index: 0;
-    overflow: hidden;
+    background:
+        radial-gradient(circle at 50% 10%, rgba(255, 255, 255, 0.03) 0%, transparent 40%),
+        radial-gradient(circle at 20% 80%, rgba(200, 200, 255, 0.02) 0%, transparent 40%);
+    animation: ambientShift 30s ease-in-out infinite alternate;
 }
 
-.particle {
-    position: absolute;
-    background: var(--accent-1);
-    border-radius: 50%;
-    opacity: 0;
-    animation: particleFloat 8s ease-in-out infinite;
-}
+@keyframes ambientShift {
+    0% {
+        transform: rotate(0deg) scale(1);
+    }
 
-@keyframes particleFloat {
-
-    0%,
     100% {
-        opacity: 0;
-        transform: translateY(0) scale(0.5);
-    }
-
-    25% {
-        opacity: 0.15;
-    }
-
-    50% {
-        opacity: 0.25;
-        transform: translateY(-60px) scale(1);
-    }
-
-    75% {
-        opacity: 0.1;
+        transform: rotate(5deg) scale(1.1);
     }
 }
 
@@ -105,16 +85,16 @@ body {
     position: sticky;
     top: 0;
     z-index: 100;
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    background: rgba(10, 14, 26, 0.75);
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    background: rgba(5, 5, 5, 0.6);
     border-bottom: 1px solid var(--border-glass);
 }
 
 .header-inner {
-    max-width: 900px;
+    max-width: 1000px;
     margin: 0 auto;
-    padding: 16px 24px;
+    padding: 20px 32px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -123,21 +103,15 @@ body {
 .logo {
     display: flex;
     align-items: center;
-    gap: 10px;
-}
-
-.logo-icon {
-    font-size: 1.6rem;
+    gap: 12px;
 }
 
 .logo-text {
-    font-size: 1.35rem;
-    font-weight: 700;
-    background: var(--accent-gradient);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    letter-spacing: -0.3px;
+    font-size: 1.1rem;
+    font-weight: 300;
+    letter-spacing: 2px;
+    color: var(--text-primary);
+    text-transform: uppercase;
 }
 
 .header-badge {
@@ -186,86 +160,122 @@ body {
 .main {
     position: relative;
     z-index: 1;
-    max-width: 860px;
+    max-width: 900px;
     margin: 0 auto;
-    padding: 32px 20px 80px;
+    padding: 60px 24px 100px;
 }
 
 /* ── Hero ── */
 .hero {
     text-align: center;
-    margin-bottom: 40px;
+    margin-bottom: 60px;
 }
 
 .hero-title {
-    font-size: clamp(2rem, 5vw, 3rem);
-    font-weight: 800;
-    letter-spacing: -1px;
-    line-height: 1.15;
-    margin-bottom: 14px;
+    font-size: clamp(2.5rem, 6vw, 4rem);
+    font-weight: 300;
+    letter-spacing: -0.04em;
+    line-height: 1.1;
+    margin-bottom: 20px;
+    color: var(--text-primary);
 }
 
 .gradient-text {
-    background: var(--accent-gradient);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    font-weight: 600;
+    color: var(--text-primary);
 }
 
 .hero-subtitle {
-    font-size: 1.05rem;
+    font-size: 1.1rem;
+    font-weight: 300;
     color: var(--text-secondary);
-    max-width: 520px;
+    max-width: 600px;
     margin: 0 auto;
     line-height: 1.6;
 }
 
-/* ── Alert ── */
-.alert {
-    display: flex;
-    gap: 14px;
-    padding: 16px 20px;
-    border-radius: var(--radius-md);
-    margin-bottom: 28px;
-    font-size: 0.9rem;
-    line-height: 1.6;
-}
-
-.alert--warning {
-    background: rgba(245, 158, 11, 0.08);
-    border: 1px solid rgba(245, 158, 11, 0.25);
-    color: #fbbf24;
-}
-
-.alert code {
-    background: rgba(255, 255, 255, 0.08);
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-size: 0.82rem;
-}
-
-/* ── Predict Card ── */
+/* ── Form Card ── */
 .predict-card {
     position: relative;
-    background: var(--bg-card);
-    border: 1px solid var(--border-glass);
-    border-radius: var(--radius-xl);
-    padding: 40px 36px;
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    box-shadow: var(--shadow-card);
-    overflow: hidden;
+    background: transparent;
+    padding: 0 40px;
 }
 
-.card-glow {
+/* ── Form Fields (Ghost Style) ── */
+.form-row {
+    display: flex;
+    gap: 40px;
+    margin-bottom: 40px;
+}
+
+.form-label {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 400;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.label-icon {
+    display: none;
+}
+
+/* Remove emojis for minimal look */
+
+.select-wrapper::after {
+    content: '↓';
+    right: 0;
+    color: var(--text-muted);
+}
+
+.select-wrapper select,
+.search-input {
+    width: 100%;
+    appearance: none;
+    -webkit-appearance: none;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--border-glass);
+    border-radius: 0;
+    color: var(--text-primary);
+    font-family: var(--font);
+    font-size: 1.1rem;
+    font-weight: 300;
+    padding: 8px 30px 8px 0;
+    outline: none;
+    cursor: pointer;
+    transition: border-color var(--transition);
+}
+
+.select-wrapper select:focus,
+.search-input:focus {
+    border-bottom-color: rgba(255, 255, 255, 0.4);
+    box-shadow: none;
+}
+
+.select-wrapper select option {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-weight: 300;
+}
+
+/* ── Team Select Blocks (Minimal) ── */
+.team-select {
+    flex: 1;
+    position: relative;
+}
+
+.team-badge {
     position: absolute;
-    top: -80px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 300px;
-    height: 160px;
-    background: radial-gradient(ellipse, var(--accent-glow), transparent 70%);
-    pointer-events: none;
+    top: -24px;
+    right: 0;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    transition: all var(--transition);
 }
 
 /* ── Form ── */
@@ -410,39 +420,33 @@ body {
     flex-shrink: 0;
 }
 
-/* ── Predict Button ── */
+/* ── Predict Button (Minimal) ── */
 .btn-predict {
     width: 100%;
-    padding: 16px;
-    margin-top: 12px;
-    border: none;
-    border-radius: var(--radius-md);
-    background: var(--accent-gradient);
-    color: #fff;
+    padding: 20px;
+    margin-top: 40px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-glass);
+    border-radius: 0;
+    color: var(--text-primary);
     font-family: var(--font);
-    font-size: 1.05rem;
-    font-weight: 600;
+    font-size: 0.85rem;
+    font-weight: 300;
+    letter-spacing: 2px;
+    text-transform: uppercase;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    transition: transform var(--transition), box-shadow var(--transition), opacity var(--transition);
+    transition: all var(--transition);
     position: relative;
-    overflow: hidden;
 }
 
 .btn-predict:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 30px var(--accent-glow);
-}
-
-.btn-predict:active:not(:disabled) {
-    transform: translateY(0);
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+    letter-spacing: 4px;
 }
 
 .btn-predict:disabled {
-    opacity: 0.4;
+    opacity: 0.2;
     cursor: not-allowed;
 }
 
@@ -457,18 +461,21 @@ body {
 
 .btn-loader {
     display: none;
-    width: 22px;
-    height: 22px;
-    border: 3px solid rgba(255, 255, 255, 0.3);
-    border-top-color: white;
+    width: 16px;
+    height: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-top-color: var(--text-primary);
     border-radius: 50%;
-    animation: spin 0.7s linear infinite;
+    animation: spin 1s linear infinite;
     position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
 }
 
 @keyframes spin {
     to {
-        transform: rotate(360deg);
+        transform: translate(-50%, -50%) rotate(360deg);
     }
 }
 
