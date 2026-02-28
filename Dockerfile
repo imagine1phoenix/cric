@@ -20,8 +20,8 @@ WORKDIR /app
 COPY requirements.txt .
 
 # Install dependencies and a production WSGI server (Gunicorn)
-# We also install eventlet since the app uses WebSocket connections via Flask-SocketIO
-RUN pip install --no-cache-dir -r requirements.txt \
+# We use --no-cache-dir and --prefer-binary to prevent Render from running out of RAM (OOM) during build
+RUN pip install --no-cache-dir --prefer-binary -r requirements.txt \
     gunicorn \
     flask-socketio==5.3.7 \
     eventlet==0.36.1
@@ -36,6 +36,5 @@ EXPOSE 5000
 ENV FLASK_ENV=production
 
 # Command to run the application using Gunicorn (production server)
-# Gunicorn binds to 0.0.0.0 (all interfaces) on port 5000
-# We use eventlet worker class to support WebSockets
-CMD ["gunicorn", "--worker-class", "eventlet", "-w", "1", "-b", "0.0.0.0:5000", "--timeout", "120", "app:app"]
+# Enabled --capture-output and --error-logfile so we can see why it crashes in Render logs
+CMD ["gunicorn", "--worker-class", "eventlet", "-w", "1", "--threads", "2", "-b", "0.0.0.0:5000", "--timeout", "120", "--capture-output", "--error-logfile", "-", "app:app"]
