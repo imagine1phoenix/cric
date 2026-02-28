@@ -46,10 +46,10 @@ data/history.db
 
 # Machine Learning Artifacts & Data
 # -----------------------------------
-# NEVER commit these! They are ~>1GB per file in some cases
-model/artifacts/*.joblib
-model/artifacts/*.pkl
-model/artifacts/ensemble/*.joblib
+# NEVER commit raw Kaggle files! They are ~>1GB per file in some cases
+# model/artifacts/*.joblib  (Uncommented so Render can load the model)
+# model/artifacts/*.pkl
+# model/artifacts/ensemble/*.joblib
 model/artifacts/ensemble/lgb.txt
 
 # Raw Training Data
