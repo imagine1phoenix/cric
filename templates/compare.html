@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compare Teams — CricPredict</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .compare-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-top: 24px;
+        }
+
+        @media (max-width: 768px) {
+            .compare-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .stat-card {
+            background: rgba(17, 24, 39, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            padding: 24px;
+            backdrop-filter: blur(12px);
+        }
+
+        .form-row--teams {
+            margin-top: 0;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+            margin-top: 16px;
+        }
+
+        .h2h-container {
+            height: 200px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg-particles" id="bgParticles"></div>
+    <header class="header">
+        <div class="header-inner">
+            <div class="logo">
+                <a href="/" style="text-decoration:none; display:flex; align-items:center; gap:10px;">
+                    <span class="logo-icon">🏏</span>
+                    <span class="logo-text">CricPredict</span>
+                </a>
+            </div>
+            <nav style="display: flex; gap: 20px;">
+                <a href="/" style="color: #cbd5e1; text-decoration: none;">Predict</a>
+                <a href="/history" style="color: #cbd5e1; text-decoration: none;">History</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main" style="max-width: 1000px; margin: 0 auto; padding: 40px 24px;">
+        <h1 class="hero-title" style="font-size: 2.5rem;">Team <span class="gradient-text">Comparison</span></h1>
+
+        <div class="predict-card" style="margin-bottom: 24px;">
+            <div class="form-row form-row--teams" style="align-items: center; justify-content: center;">
+                <div class="form-group" style="flex: 1;">
+                    <select id="team1" class="select-wrapper"
+                        style="width:100%; padding:12px; background:rgba(0,0,0,0.5); color:#fff; border:1px solid rgba(255,255,255,0.2); border-radius:8px;">
+                        <option value="">Select Team 1</option>
+                        {% for team in teams %}
+                        <option value="{{ team }}">{{ team }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div style="font-weight: 800; color: #4ade80; margin: 0 16px;">VS</div>
+                <div class="form-group" style="flex: 1;">
+                    <select id="team2" class="select-wrapper"
+                        style="width:100%; padding:12px; background:rgba(0,0,0,0.5); color:#fff; border:1px solid rgba(255,255,255,0.2); border-radius:8px;">
+                        <option value="">Select Team 2</option>
+                        {% for team in teams %}
+                        <option value="{{ team }}">{{ team }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group" style="margin-left: 16px;">
+                    <button class="btn-predict" id="compareBtn" style="padding: 12px 24px;">Compare</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="loading" style="display:none; text-align:center; padding: 40px;">
+            <div class="btn-loader" style="display:inline-block; width: 24px; height: 24px;"></div>
+        </div>
+
+        <div id="resultsContent" style="display:none;">
+            <div class="stat-card" style="text-align: center; margin-bottom: 24px;">
+                <h2>Head-to-Head</h2>
+                <div class="chart-container h2h-container">
+                    <canvas id="h2hChart"></canvas>
+                </div>
+            </div>
+
+            <div class="compare-grid">
+                <!-- Team 1 Stats -->
+                <div class="stat-card">
+                    <h2 id="t1Name" style="color: #4ade80;">Team 1</h2>
+                    <ul style="list-style:none; padding:0; margin-top: 16px; color:#cbd5e1; line-height:2;">
+                        <li>Elo Rating: <strong id="t1Elo" style="color:#fff;"></strong></li>
+                        <li>Win Rate: <strong id="t1WinRate" style="color:#fff;"></strong></li>
+                        <li>Recent Form: <strong id="t1Form" style="color:#fff;"></strong></li>
+                    </ul>
+                </div>
+
+                <!-- Team 2 Stats -->
+                <div class="stat-card">
+                    <h2 id="t2Name" style="color: #38bdf8;">Team 2</h2>
+                    <ul style="list-style:none; padding:0; margin-top: 16px; color:#cbd5e1; line-height:2;">
+                        <li>Elo Rating: <strong id="t2Elo" style="color:#fff;"></strong></li>
+                        <li>Win Rate: <strong id="t2WinRate" style="color:#fff;"></strong></li>
+                        <li>Recent Form: <strong id="t2Form" style="color:#fff;"></strong></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- More charts can be added here if needed -->
+        </div>
+    </main>
+
+    <script>
+        document.getElementById('compareBtn').addEventListener('click', async () => {
+            const t1 = document.getElementById('team1').value;
+            const t2 = document.getElementById('team2').value;
+            if (!t1 || !t2 || t1 === t2) { alert('Select two distinct teams'); return; }
+
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('resultsContent').style.display = 'none';
+
+            try {
+                const res = await fetch(`/api/compare?team1=${encodeURIComponent(t1)}&team2=${encodeURIComponent(t2)}`);
+                const data = await res.json();
+                if (data.error) throw new Error(data.error);
+
+                document.getElementById('t1Name').textContent = data.team1;
+                document.getElementById('t1Elo').textContent = data.team1_stats.elo.toFixed(0);
+                document.getElementById('t1WinRate').textContent = (data.team1_stats.overall_win_rate * 100).toFixed(1) + '%';
+                document.getElementById('t1Form').textContent = data.team1_stats.recent_form.join('');
+
+                document.getElementById('t2Name').textContent = data.team2;
+                document.getElementById('t2Elo').textContent = data.team2_stats.elo.toFixed(0);
+                document.getElementById('t2WinRate').textContent = (data.team2_stats.overall_win_rate * 100).toFixed(1) + '%';
+                document.getElementById('t2Form').textContent = data.team2_stats.recent_form.join('');
+
+                // Render Chart
+                if (window.h2hChart) window.h2hChart.destroy();
+                const ctx = document.getElementById('h2hChart').getContext('2d');
+                window.h2hChart = new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: [data.team1 + ' Wins', data.team2 + ' Wins', 'Draws/No Result'],
+                        datasets: [{
+                            data: [data.h2h.team1_wins, data.h2h.team2_wins, data.h2h.draws + data.h2h.no_results],
+                            backgroundColor: ['#4ade80', '#38bdf8', '#475569'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: '#fff' } } } }
+                });
+
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('resultsContent').style.display = 'block';
+            } catch (err) {
+                alert(err.message);
+                document.getElementById('loading').style.display = 'none';
+            }
+        });
+    </script>
+</body>
+
+</html>

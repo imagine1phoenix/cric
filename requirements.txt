@@ -1,0 +1,35 @@
+flask>=3.0
+Flask-Caching==2.1.0
+Flask-Compress==1.15
+joblib>=1.3
+scikit-learn>=1.3
+numpy>=1.24
+pandas>=2.0
+kagglehub
+
+# Ensemble models
+xgboost>=2.0
+lightgbm>=4.0
+
+# Hyperparameter tuning
+optuna>=3.6
+
+# Feature analysis
+shap>=0.45
+matplotlib>=3.7
+
+# API and Validation
+flask-limiter==3.5.1
+marshmallow==3.21.0
+python-json-logger==2.0.7
+
+# Live scores
+requests>=2.31
+httpx>=0.25
+
+# WebSocket (optional — install for live updates)
+# flask-socketio==5.3.7
+# eventlet==0.36.1
+
+# Auto-retrain scheduling
+APScheduler>=3.10

@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CricPredict — Cricket Match Winner Prediction</title>
+    <meta name="description"
+        content="Predict cricket match winners using machine learning. Powered by a Random Forest model trained on historical match data.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Preload dropdown data -->
+    <link rel="preload" href="{{ url_for('static', filename='data/dropdowns.json') }}" as="fetch" crossorigin>
+
+    <!-- Critical CSS (inlined for fast first paint) -->
+    <style>
+        :root {
+            --bg-primary: #0b0f19;
+            --bg-card: rgba(17, 24, 39, 0.85);
+            --text-primary: #f0f6fc;
+            --accent-1: #4ade80;
+            --font: 'Outfit', system-ui, sans-serif
+        }
+
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        body {
+            font-family: var(--font);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden
+        }
+
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(20px);
+            background: rgba(11, 15, 25, 0.8);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 12px 24px
+        }
+
+        .header-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 1.15rem
+        }
+
+        .logo-text {
+            background: linear-gradient(135deg, var(--accent-1), #22d3ee);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent
+        }
+
+        .hero-title {
+            font-size: clamp(2rem, 5vw, 3.4rem);
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 12px
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, var(--accent-1), #22d3ee);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent
+        }
+    </style>
+
+    <!-- Full CSS (deferred load) -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" media="print"
+        onload="this.media='all'">
+    <noscript>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    </noscript>
+</head>
+
+<body>
+    <div class="bg-particles" id="bgParticles"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-inner">
+            <div class="logo">
+                <span class="logo-icon">🏏</span>
+                <span class="logo-text">CricPredict</span>
+            </div>
+            <nav style="display: flex; gap: 20px; align-items: center;">
+                <a href="/compare" style="color: var(--text-primary); text-decoration: none; font-weight: 500;">Compare
+                    Teams</a>
+                <a href="/history"
+                    style="color: var(--text-primary); text-decoration: none; font-weight: 500;">History</a>
+                <div class="header-badge">
+                    <span
+                        class="badge-dot {% if model_loaded %}badge-dot--live{% else %}badge-dot--offline{% endif %}"></span>
+                    <span>{{ "Model Active" if model_loaded else "Model Offline" }}</span>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main">
+        <!-- Hero -->
+        <section class="hero">
+            <h1 class="hero-title">Predict the <span class="gradient-text">Winner</span></h1>
+            <p class="hero-subtitle">AI-powered cricket match predictions using a Random Forest model trained on
+                thousands of historical matches</p>
+        </section>
+
+        {% if not model_loaded %}
+        <div class="alert alert--warning">
+            <span class="alert-icon">⚠️</span>
+            <div><strong>Model not loaded.</strong> Run <code>python3 train_model.py</code> first, then restart this
+                server.</div>
+        </div>
+        {% endif %}
+
+        <!-- Prediction Card -->
+        <section class="predict-card" id="predictCard">
+            <div class="card-glow"></div>
+
+            <form id="predictionForm" class="form">
+
+                <!-- League + Format Row -->
+                <div class="form-row form-row--filters">
+                    <div class="form-group">
+                        <label class="form-label"><span class="label-icon">🏆</span> League / Tournament</label>
+                        <div class="select-wrapper">
+                            <select id="league" name="league">
+                                <option value="">All Leagues</option>
+                                {% for lg in leagues %}
+                                <option value="{{ lg }}">{{ lg }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label"><span class="label-icon">📋</span> Format</label>
+                        <div class="select-wrapper">
+                            <select id="matchType" name="match_type">
+                                <option value="">Any Format</option>
+                                {% for mt in match_types %}
+                                <option value="{{ mt }}">{{ mt }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label"><span class="label-icon">👤</span> Gender</label>
+                        <div class="select-wrapper">
+                            <select id="gender" name="gender">
+                                <option value="">Any</option>
+                                {% for g in genders %}
+                                <option value="{{ g }}">{{ g | capitalize }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Teams Row -->
+                <div class="form-row form-row--teams">
+                    <div class="team-select team-select--1" id="team1Block">
+                        <label class="form-label">Team 1</label>
+                        <div class="select-wrapper select-wrapper--searchable">
+                            <input type="text" class="search-input" id="team1Search" placeholder="Search teams..."
+                                autocomplete="off">
+                            <select id="team1" name="team1" required>
+                                <option value="">Select Team</option>
+                                {% for team in teams %}
+                                <option value="{{ team }}">{{ team }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="team-badge" id="team1Badge"></div>
+                    </div>
+
+                    <div class="vs-divider">
+                        <div class="vs-circle"><span>VS</span></div>
+                    </div>
+
+                    <div class="team-select team-select--2" id="team2Block">
+                        <label class="form-label">Team 2</label>
+                        <div class="select-wrapper select-wrapper--searchable">
+                            <input type="text" class="search-input" id="team2Search" placeholder="Search teams..."
+                                autocomplete="off">
+                            <select id="team2" name="team2" required>
+                                <option value="">Select Team</option>
+                                {% for team in teams %}
+                                <option value="{{ team }}">{{ team }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="team-badge" id="team2Badge"></div>
+                    </div>
+                </div>
+
+                <!-- Venue + City -->
+                <div class="form-row form-row--location">
+                    <div class="form-group" style="flex:2">
+                        <label class="form-label"><span class="label-icon">📍</span> Venue</label>
+                        <div class="select-wrapper">
+                            <select id="venue" name="venue">
+                                <option value="">Select Venue (optional)</option>
+                                {% for v in venues %}
+                                <option value="{{ v }}">{{ v }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group" style="flex:1">
+                        <label class="form-label"><span class="label-icon">🌆</span> City</label>
+                        <div class="select-wrapper">
+                            <select id="city" name="city">
+                                <option value="">Select City</option>
+                                {% for c in cities %}
+                                <option value="{{ c }}">{{ c }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Toss Info -->
+                <div class="form-row form-row--toss">
+                    <div class="form-group">
+                        <label class="form-label"><span class="label-icon">🪙</span> Toss Winner</label>
+                        <div class="select-wrapper">
+                            <select id="tossWinner" name="toss_winner">
+                                <option value="">Select (optional)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label"><span class="label-icon">🏏</span> Toss Decision</label>
+                        <div class="select-wrapper">
+                            <select id="tossDecision" name="toss_decision">
+                                <option value="">Select (optional)</option>
+                                <option value="bat">Bat First</option>
+                                <option value="field">Field First</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-predict" id="predictBtn" {% if not model_loaded %}disabled{% endif %}>
+                    <span class="btn-text">Predict Winner</span>
+                    <span class="btn-loader" id="btnLoader"></span>
+                    <span class="btn-icon">→</span>
+                </button>
+            </form>
+        </section>
+
+        <!-- Result Section -->
+        <section class="result-section" id="resultSection" style="display:none;">
+            <div class="result-card">
+                <div class="result-header">
+                    <span class="result-label">Predicted Winner</span>
+                    <h2 class="result-winner" id="resultWinner"></h2>
+                </div>
+
+                <div class="result-context" id="resultContext"></div>
+
+                <div id="gaugeContainer" style="display: flex; justify-content: center; margin: 24px 0;"></div>
+
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <span class="stat-value" id="statConfidence"></span>
+                        <span class="stat-label">Confidence</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="statAccuracy"></span>
+                        <span class="stat-label">Model Accuracy</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="statCI"></span>
+                        <span class="stat-label">95% CI</span>
+                    </div>
+                </div>
+
+                <div class="explanation-section"
+                    style="margin-top: 24px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <h3 style="margin-bottom: 16px; font-size: 1.1rem; color: #fff; cursor: pointer;"
+                        onclick="document.getElementById('explanationContent').style.display = document.getElementById('explanationContent').style.display === 'none' ? 'block' : 'none'">
+                        Why this prediction? <span style="font-size: 0.8em; opacity: 0.7;">▼</span></h3>
+                    <div id="explanationContent" style="display: none; transition: all 0.3s ease;">
+                        <canvas id="explanationChart" style="max-height: 250px;"></canvas>
+                        <ul id="explanationFactors"
+                            style="list-style: none; margin-top: 16px; color: #cbd5e1; font-size: 0.9rem; padding: 0; display: flex; flex-direction: column; gap: 8px;">
+                        </ul>
+                    </div>
+                </div>
+
+                <button class="btn-again" id="btnAgain">← Predict Another Match</button>
+            </div>
+        </section>
+
+        <div class="toast" id="errorToast" style="display:none;">
+            <span class="toast-icon">❌</span>
+            <span class="toast-msg" id="toastMsg"></span>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>Built with 🏏 &amp; ML — Random Forest (bootstrap) · Trained on 19,000+ historical matches</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{ url_for('static', filename='js/gauge.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/explanation.js') }}"></script>
+    <!-- Deferred JS -->
+    <script defer>
+        // ── Data from server (SSR fallback) ──
+        const LEAGUE_TEAMS = {{ league_teams | tojson }};
+        const LEAGUE_VENUES = {{ league_venues | tojson }};
+        const LEAGUE_CITIES = {{ league_cities | tojson }};
+        const ALL_TEAMS = {{ teams | tojson }};
+        const ALL_VENUES = {{ venues | tojson }};
+        const ALL_CITIES = {{ cities | tojson }};
+
+        // ── DOM ──
+        const form = document.getElementById('predictionForm');
+        const team1Sel = document.getElementById('team1');
+        const team2Sel = document.getElementById('team2');
+        const venueSel = document.getElementById('venue');
+        const citySel = document.getElementById('city');
+        const leagueSel = document.getElementById('league');
+        const matchTypeSel = document.getElementById('matchType');
+        const genderSel = document.getElementById('gender');
+        const tossWinnerSel = document.getElementById('tossWinner');
+        const tossDecisionSel = document.getElementById('tossDecision');
+        const predictBtn = document.getElementById('predictBtn');
+        const resultSection = document.getElementById('resultSection');
+        const predictCard = document.getElementById('predictCard');
+        const errorToast = document.getElementById('errorToast');
+
+        // ── Populate a select element ──
+        function populateSelect(sel, items, placeholder, keepValue) {
+            const prevVal = keepValue ? sel.value : '';
+            sel.innerHTML = `<option value="">${placeholder}</option>`;
+            items.forEach(item => {
+                sel.innerHTML += `<option value="${item}">${item}</option>`;
+            });
+            if (keepValue && items.includes(prevVal)) {
+                sel.value = prevVal;
+            }
+        }
+
+        // ── League change → filter teams, venues, cities ──
+        leagueSel.addEventListener('change', () => {
+            const lg = leagueSel.value;
+            if (lg && LEAGUE_TEAMS[lg]) {
+                populateSelect(team1Sel, LEAGUE_TEAMS[lg], 'Select Team', true);
+                populateSelect(team2Sel, LEAGUE_TEAMS[lg], 'Select Team', true);
+                populateSelect(venueSel, LEAGUE_VENUES[lg] || [], 'Select Venue (optional)', true);
+                populateSelect(citySel, LEAGUE_CITIES[lg] || [], 'Select City', true);
+            } else {
+                populateSelect(team1Sel, ALL_TEAMS, 'Select Team', true);
+                populateSelect(team2Sel, ALL_TEAMS, 'Select Team', true);
+                populateSelect(venueSel, ALL_VENUES, 'Select Venue (optional)', true);
+                populateSelect(citySel, ALL_CITIES, 'Select City', true);
+            }
+            updateTossOptions();
+            updateTeamBadge(team1Sel, document.getElementById('team1Badge'), document.getElementById('team1Block'));
+            updateTeamBadge(team2Sel, document.getElementById('team2Badge'), document.getElementById('team2Block'));
+        });
+
+        // ── Search-filter for team selects ──
+        function setupSearchFilter(searchInput, select) {
+            searchInput.addEventListener('input', () => {
+                const query = searchInput.value.toLowerCase();
+                const options = select.querySelectorAll('option');
+                options.forEach(opt => {
+                    if (!opt.value) return;
+                    opt.style.display = opt.textContent.toLowerCase().includes(query) ? '' : 'none';
+                });
+            });
+            searchInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    searchInput.value = '';
+                    searchInput.dispatchEvent(new Event('input'));
+                }
+            });
+        }
+        setupSearchFilter(document.getElementById('team1Search'), team1Sel);
+        setupSearchFilter(document.getElementById('team2Search'), team2Sel);
+
+        // ── Toss options ──
+        function updateTossOptions() {
+            const t1 = team1Sel.value;
+            const t2 = team2Sel.value;
+            tossWinnerSel.innerHTML = '<option value="">Select (optional)</option>';
+            if (t1) tossWinnerSel.innerHTML += `<option value="${t1}">${t1}</option>`;
+            if (t2) tossWinnerSel.innerHTML += `<option value="${t2}">${t2}</option>`;
+        }
+        team1Sel.addEventListener('change', updateTossOptions);
+        team2Sel.addEventListener('change', updateTossOptions);
+
+        // ── Team badges ──
+        function teamColor(name) {
+            if (!name) return 'hsl(220, 15%, 30%)';
+            let hash = 0;
+            for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+            return `hsl(${Math.abs(hash) % 360}, 65%, 50%)`;
+        }
+
+        function updateTeamBadge(selectEl, badgeEl, blockEl) {
+            const name = selectEl.value;
+            const color = teamColor(name);
+            badgeEl.textContent = name ? name.substring(0, 3).toUpperCase() : '';
+            badgeEl.style.background = name ? `linear-gradient(135deg, ${color}, ${color}dd)` : '';
+            badgeEl.style.display = name ? 'flex' : 'none';
+            blockEl.style.borderColor = name ? color : '';
+        }
+
+        team1Sel.addEventListener('change', () =>
+            updateTeamBadge(team1Sel, document.getElementById('team1Badge'), document.getElementById('team1Block')));
+        team2Sel.addEventListener('change', () =>
+            updateTeamBadge(team2Sel, document.getElementById('team2Badge'), document.getElementById('team2Block')));
+
+        // ── Error toast ──
+        function showError(msg) {
+            document.getElementById('toastMsg').textContent = msg;
+            errorToast.style.display = 'flex';
+            setTimeout(() => { errorToast.style.display = 'none'; }, 4000);
+        }
+
+        // ── Submit ──
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const team1 = team1Sel.value;
+            const team2 = team2Sel.value;
+            if (!team1 || !team2) { showError('Please select both teams.'); return; }
+            if (team1 === team2) { showError('Teams must be different.'); return; }
+
+            predictBtn.classList.add('loading');
+            predictBtn.disabled = true;
+
+            try {
+                const res = await fetch('/predict', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        team1, team2,
+                        venue: venueSel.value,
+                        toss_winner: tossWinnerSel.value,
+                        toss_decision: tossDecisionSel.value,
+                        match_type: matchTypeSel.value,
+                        gender: genderSel.value,
+                        league: leagueSel.value,
+                        city: citySel.value,
+                    })
+                });
+                const data = await res.json();
+                if (data.error) { showError(data.error); return; }
+                displayResult(data);
+            } catch (err) {
+                showError('Network error. Is the server running?');
+            } finally {
+                predictBtn.classList.remove('loading');
+                predictBtn.disabled = false;
+            }
+        });
+
+        // ── Display result ──
+        function displayResult(data) {
+            predictCard.style.display = 'none';
+            resultSection.style.display = 'block';
+
+            document.getElementById('resultWinner').textContent = data.winner;
+            document.getElementById('resultWinner').style.color = teamColor(data.winner);
+
+            const parts = [];
+            if (leagueSel.value) parts.push(leagueSel.value);
+            if (matchTypeSel.value) parts.push(matchTypeSel.value);
+            if (venueSel.value) parts.push(venueSel.value);
+            const ctx = document.getElementById('resultContext');
+            ctx.textContent = parts.length ? parts.join(' · ') : '';
+            ctx.style.display = parts.length ? 'block' : 'none';
+
+            document.getElementById('gaugeContainer').innerHTML = '';
+            createGauge('gaugeContainer', data.confidence / 100, teamColor(data.team2), teamColor(data.team1));
+
+            if (data.explanation && data.explanation.factors) {
+                renderExplanation(data.explanation.factors);
+            } else {
+                const explCtx = document.getElementById('explanationChart').getContext('2d');
+                if (window.explChart) { window.explChart.destroy(); }
+                document.getElementById('explanationFactors').innerHTML = '<li style="text-align:center;">No explanation available</li>';
+            }
+
+            document.getElementById('statConfidence').textContent = data.confidence + '%';
+            document.getElementById('statAccuracy').textContent = data.model_accuracy + '%';
+            document.getElementById('statCI').textContent =
+                (data.ci_low && data.ci_high) ? data.ci_low + '% – ' + data.ci_high + '%' : 'N/A';
+
+            resultSection.classList.add('result-enter');
+        }
+
+        // ── Back ──
+        document.getElementById('btnAgain').addEventListener('click', () => {
+            resultSection.style.display = 'none';
+            resultSection.classList.remove('result-enter');
+            predictCard.style.display = 'block';
+        });
+
+        // ── Particles ──
+        (function () {
+            const c = document.getElementById('bgParticles');
+            for (let i = 0; i < 30; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.style.left = Math.random() * 100 + '%';
+                p.style.top = Math.random() * 100 + '%';
+                p.style.animationDelay = Math.random() * 6 + 's';
+                p.style.animationDuration = (4 + Math.random() * 8) + 's';
+                p.style.width = p.style.height = (2 + Math.random() * 4) + 'px';
+                c.appendChild(p);
+            }
+        })();
+    </script>
+</body>
+
+</html>

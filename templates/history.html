@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediction History — CricPredict</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .stat-card {
+            background: rgba(17, 24, 39, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            padding: 24px;
+            backdrop-filter: blur(12px);
+            margin-bottom: 24px;
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+            color: #cbd5e1;
+        }
+
+        .history-table th,
+        .history-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .history-table th {
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .correct {
+            color: #4ade80;
+            font-weight: bold;
+        }
+
+        .incorrect {
+            color: #f87171;
+            font-weight: bold;
+        }
+
+        .pending {
+            color: #fbbf24;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg-particles" id="bgParticles"></div>
+    <header class="header">
+        <div class="header-inner">
+            <div class="logo">
+                <a href="/" style="text-decoration:none; display:flex; align-items:center; gap:10px;">
+                    <span class="logo-icon">🏏</span>
+                    <span class="logo-text">CricPredict</span>
+                </a>
+            </div>
+            <nav style="display: flex; gap: 20px;">
+                <a href="/compare" style="color: #cbd5e1; text-decoration: none;">Compare Teams</a>
+                <a href="/" style="color: #cbd5e1; text-decoration: none;">Predict</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main" style="max-width: 1000px; margin: 0 auto; padding: 40px 24px;">
+        <h1 class="hero-title" style="font-size: 2.5rem;">Prediction <span class="gradient-text">History</span></h1>
+
+        <div class="stat-card">
+            <h2>Overall Accuracy</h2>
+            <div style="font-size: 3rem; font-weight: 800; color: #4ade80; margin: 16px 0;" id="accPct">--%</div>
+            <p id="accText" style="color: #cbd5e1;">Loading accuracy stats...</p>
+        </div>
+
+        <div class="stat-card" style="overflow-x: auto;">
+            <h2>Recent Predictions</h2>
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Match</th>
+                        <th>League/Format</th>
+                        <th>Predicted Winner</th>
+                        <th>Probability</th>
+                        <th>Result</th>
+                    </tr>
+                </thead>
+                <tbody id="historyBody">
+                    <tr>
+                        <td colspan="6" style="text-align: center;">Loading history...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <script>
+        async function loadHistory() {
+            try {
+                const accRes = await fetch('/api/history/accuracy');
+                const accData = await accRes.json();
+
+                if (accData.total_verified > 0) {
+                    document.getElementById('accPct').textContent = accData.accuracy_pct + '%';
+                    document.getElementById('accText').textContent = `Correctly predicted ${accData.total_correct} out of ${accData.total_verified} completed matches.`;
+                } else {
+                    document.getElementById('accText').textContent = 'No verified match results available yet.';
+                }
+
+                const histRes = await fetch('/api/history?per_page=20');
+                const histData = await histRes.json();
+
+                const tbody = document.getElementById('historyBody');
+                tbody.innerHTML = '';
+
+                if (!histData.predictions || histData.predictions.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">No predictions made yet.</td></tr>';
+                    return;
+                }
+
+                histData.predictions.forEach(p => {
+                    const tr = document.createElement('tr');
+                    const d = new Date(p.created_at + 'Z');
+
+                    let resultHtml = '<span class="pending">Pending</span>';
+                    if (p.actual_winner) {
+                        resultHtml = p.correct ? '<span class="correct">✓ Correct</span>' : '<span class="incorrect">✗ Incorrect</span>';
+                    }
+
+                    tr.innerHTML = `
+                        <td>${d.toLocaleDateString()} ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
+                        <td><strong>${p.team1}</strong> vs <strong>${p.team2}</strong><br><small style="color:#64748b">${p.venue}</small></td>
+                        <td>${p.league || '-'}<br><small style="color:#64748b">${p.format || '-'}</small></td>
+                        <td style="color: #fff;">${p.predicted_winner}</td>
+                        <td>${(p.win_probability).toFixed(1)}%</td>
+                        <td>${resultHtml}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (err) {
+                console.error(err);
+                document.getElementById('historyBody').innerHTML = '<tr><td colspan="6" style="text-align: center; color: #f87171;">Error loading history</td></tr>';
+            }
+        }
+
+        loadHistory();
+    </script>
+</body>
+
+</html>

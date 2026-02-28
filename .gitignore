@@ -1,0 +1,92 @@
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Flask / Application Data
+instance/
+.webassets-cache
+
+# Database
+*.sqlite3
+*.db
+!data/history.db
+
+# However, we DO want to ignore the history DB if it gets massive with raw inputs
+# (Uncomment this if you want to ignore the cache entirely)
+data/history.db
+
+# Machine Learning Artifacts & Data
+# -----------------------------------
+# NEVER commit these! They are ~>1GB per file in some cases
+model/artifacts/*.joblib
+model/artifacts/*.pkl
+model/artifacts/ensemble/*.joblib
+model/artifacts/ensemble/lgb.txt
+
+# Raw Training Data
+data/raw_csv/
+data/*.json
+
+# Precomputed Dropdown Caches 
+# (You might want to commit these so the app runs without models on Vercel)
+# static/data/dropdowns.json
+# static/data/dropdowns.json.gz
+
+# Kaggle / Download Scripts
+.cache/
+.kaggle/
+pipeline/state.json
+
+# IDE / OS Files
+.vscode/
+.idea/
+*.swp
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# NPM / Frontend
+node_modules/
+.npm/
+
+# Jupyter Notebooks
+.ipynb_checkpoints
+cricket_model_notebook.py

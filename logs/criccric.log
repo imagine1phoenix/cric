@@ -1,0 +1,21 @@
+timestamp=2026-02-28T21:22:57.827059Z | level=INFO | logger=criccric | message=Structured logging initialised
+timestamp=2026-02-28T21:22:57.827269Z | level=INFO | logger=criccric | message=Starting CricPredict (development mode)
+timestamp=2026-02-28T21:22:57.828525Z | level=INFO | logger=criccric | message=Rate limiter initialised
+timestamp=2026-02-28T21:22:57.832211Z | level=INFO | logger=criccric | message=History DB initialised: /Users/pritthacker/Desktop/criccric/data/history.db
+timestamp=2026-02-28T21:22:57.832569Z | level=INFO | logger=criccric | message=Using model artifacts from /Users/pritthacker/Desktop/criccric/model/artifacts
+timestamp=2026-02-28T21:27:54.181624Z | level=INFO | logger=criccric | message=Structured logging initialised
+timestamp=2026-02-28T21:27:54.182026Z | level=INFO | logger=criccric | message=Starting CricPredict (development mode)
+timestamp=2026-02-28T21:27:54.183146Z | level=INFO | logger=criccric | message=Rate limiter initialised
+timestamp=2026-02-28T21:27:54.187738Z | level=INFO | logger=criccric | message=History DB initialised: /Users/pritthacker/Desktop/criccric/data/history.db
+timestamp=2026-02-28T21:27:54.187811Z | level=INFO | logger=criccric | message=Using model artifacts from /Users/pritthacker/Desktop/criccric/model/artifacts
+timestamp=2026-02-28T21:30:32.906326Z | level=INFO | logger=criccric | message=Structured logging initialised
+timestamp=2026-02-28T21:30:32.906580Z | level=INFO | logger=criccric | message=Starting CricPredict (development mode)
+timestamp=2026-02-28T21:30:32.907849Z | level=INFO | logger=criccric | message=Rate limiter initialised
+timestamp=2026-02-28T21:30:32.909863Z | level=INFO | logger=criccric | message=History DB initialised: /Users/pritthacker/Desktop/criccric/data/history.db
+timestamp=2026-02-28T21:30:32.909965Z | level=INFO | logger=criccric | message=Using model artifacts from /Users/pritthacker/Desktop/criccric/model/artifacts
+timestamp=2026-02-28T21:47:50.229425Z | level=INFO | logger=criccric | message=Structured logging initialised
+timestamp=2026-02-28T21:47:50.229672Z | level=INFO | logger=criccric | message=Starting CricPredict (development mode)
+timestamp=2026-02-28T21:47:50.230817Z | level=INFO | logger=criccric | message=Rate limiter initialised
+timestamp=2026-02-28T21:47:50.232858Z | level=INFO | logger=criccric | message=History DB initialised: /Users/pritthacker/Desktop/criccric/data/history.db
+timestamp=2026-02-28T21:47:50.232938Z | level=INFO | logger=criccric | message=Using model artifacts from /Users/pritthacker/Desktop/criccric/model/artifacts
+timestamp=2026-02-28T21:48:44.781174Z | level=INFO | logger=criccric | message=Ensemble models loaded
